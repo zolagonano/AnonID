@@ -21,7 +21,7 @@ impl UserData {
 
         Some(UserData {
             username: username.to_string(),
-            auth_address: username.to_string(),
+            auth_address: auth_address.to_string(),
         })
     }
 
