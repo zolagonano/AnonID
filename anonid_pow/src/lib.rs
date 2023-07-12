@@ -156,4 +156,48 @@ mod tests {
 
         assert_eq!(hash, computed_hash);
     }
+
+    #[test]
+    fn test_pow_adjust_difficulty() {
+        let difficulty = 6;
+
+        assert_eq!(6, PoW::adjust_difficulty(2, difficulty));
+        assert_eq!(3, PoW::adjust_difficulty(7, difficulty));
+        assert_eq!(2, PoW::adjust_difficulty(10, difficulty));
+        assert_eq!(1, PoW::adjust_difficulty(18, difficulty));
+    }
+
+    #[test]
+    fn test_pow_calculate() {
+        let difficulty = 10;
+
+        let userdata =
+            UserData::from_merged("1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user".to_string())
+                .unwrap();
+        let pow = PoW::new(userdata, difficulty, PoWAlgo::Sha256);
+
+        let expected_result = (
+            "00000d311bf66540c9a555f704c27df88e0d5172155771e69d3c7849f2eb07f9".to_string(),
+            1276692_usize,
+        );
+
+        assert_eq!(expected_result, pow.calculate_pow());
+    }
+
+    #[test]
+    fn test_pow_verify() {
+        let difficulty = 10;
+
+        let userdata =
+            UserData::from_merged("1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user".to_string())
+                .unwrap();
+        let pow = PoW::new(userdata, difficulty, PoWAlgo::Sha256);
+
+        let computed_pow = (
+            "00000d311bf66540c9a555f704c27df88e0d5172155771e69d3c7849f2eb07f9".to_string(),
+            1276692_usize,
+        );
+
+        assert!(pow.verify_pow(computed_pow));
+    }
 }
