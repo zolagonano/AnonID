@@ -143,4 +143,17 @@ mod tests {
         assert!(UserData::from_merged(correct_merged_userdata).is_some());
         assert!(UserData::from_merged(incorrect_merged_userdata).is_none());
     }
+
+    #[test]
+    fn test_pow_algo() {
+        let userdata = "1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user";
+        let nonce = 666;
+
+        let hash = "0729afa04e84848b8535f35df9dab0bad39b1e4c56a2d82443e2ecd89aca1483";
+
+        let pow_algo = PoWAlgo::Sha256;
+        let computed_hash = pow_algo.calculate(userdata, nonce);
+
+        assert_eq!(hash, computed_hash);
+    }
 }
