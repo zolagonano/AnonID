@@ -117,3 +117,30 @@ impl PoW {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{PoW, PoWAlgo, UserData};
+
+    #[test]
+    fn test_userdata_merge() {
+        let userdata = UserData::new(
+            "zeronet_user".to_string(),
+            "1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX".to_string(),
+        );
+
+        assert_eq!(
+            "1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user",
+            userdata.merge()
+        );
+    }
+
+    #[test]
+    fn test_userdata_from_merge() {
+        let correct_merged_userdata = "1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user".to_string();
+        let incorrect_merged_userdata = "1FBbx487PoajzgnA4yY6TnoLFhQQteT8UXzeronetuser".to_string();
+
+        assert!(UserData::from_merged(correct_merged_userdata).is_some());
+        assert!(UserData::from_merged(incorrect_merged_userdata).is_none());
+    }
+}
