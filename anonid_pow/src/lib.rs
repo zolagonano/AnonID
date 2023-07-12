@@ -97,4 +97,23 @@ impl PoW {
             }
         }
     }
+
+    pub fn verify_pow(&self, pow_value: (String, usize)) -> bool {
+        let userdata = self.userdata.merge();
+        let username_length = self.userdata.username_length();
+
+        let adjusted_difficulty = Self::adjust_difficulty(username_length, self.difficulty);
+
+        let target = "0".repeat(adjusted_difficulty);
+
+        let (input_hash, nonce) = pow_value;
+
+        let computed_hash = self.algo.calculate(&userdata, nonce);
+
+        if computed_hash[..adjusted_difficulty] == target && computed_hash == input_hash {
+            true
+        } else {
+            false
+        }
+    }
 }
