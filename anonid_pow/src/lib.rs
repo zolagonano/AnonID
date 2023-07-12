@@ -54,3 +54,47 @@ impl PoWAlgo {
         }
     }
 }
+
+pub struct PoW {
+    userdata: UserData,
+    difficulty: usize,
+    algo: PoWAlgo,
+}
+
+impl PoW {
+    pub fn new(userdata: UserData, difficulty: usize, algo: PoWAlgo) -> PoW {
+        PoW {
+            userdata,
+            difficulty,
+            algo,
+        }
+    }
+
+    pub fn adjust_difficulty(username_length: usize, difficulty: usize) -> usize {
+        let half_difficulty = difficulty / 2;
+
+        let divisor = std::cmp::max(1, username_length / half_difficulty);
+
+        difficulty / divisor
+    }
+
+    pub fn calculate_pow(&self) -> (String, usize) {
+        let userdata = self.userdata.merge();
+        let username_length = self.userdata.username_length();
+
+        let adjusted_difficulty = Self::adjust_difficulty(username_length, self.difficulty);
+
+        let target = "0".repeat(adjusted_difficulty);
+
+        let mut nonce = 0;
+        loop {
+            let hash = self.algo.calculate(&userdata, nonce);
+
+            if hash[..adjusted_difficulty] == target {
+                return (hash, nonce);
+            } else {
+                nonce += 1;
+            }
+        }
+    }
+}
