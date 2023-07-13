@@ -1,11 +1,13 @@
 use sha2::{Digest, Sha256};
 
+/// Contains username and user's public key
 pub struct UserData {
     username: String,
     auth_address: String,
 }
 
 impl UserData {
+    /// Initialize a UserData struct with username and user's public key
     pub fn new(username: String, auth_address: String) -> UserData {
         UserData {
             username,
@@ -13,6 +15,7 @@ impl UserData {
         }
     }
 
+    /// Initialize a UserData struct from a merged userdata string
     pub fn from_merged(merged_userdata: String) -> Option<UserData> {
         let userdata: Vec<&str> = merged_userdata.split(":").collect();
 
@@ -25,20 +28,27 @@ impl UserData {
         })
     }
 
+    /// Merges the username and public key to a string
+    ///
+    /// "auth_address:username"
+    ///
     pub fn merge(&self) -> String {
         format!("{}:{}", self.auth_address, self.username)
     }
 
+    /// Returns username's length
     pub fn username_length(&self) -> usize {
         self.username.len()
     }
 }
 
+/// Contains the PoW algorithm
 pub enum PoWAlgo {
     Sha256,
 }
 
 impl PoWAlgo {
+    /// Calculates the Hash based on the algorithm
     pub fn calculate(&self, userdata: &str, nonce: usize) -> String {
         match self {
             PoWAlgo::Sha256 => {
@@ -55,6 +65,7 @@ impl PoWAlgo {
     }
 }
 
+/// Contains PoW parameters like difficulty, userdata, and PoW algorithm
 pub struct PoW {
     userdata: UserData,
     difficulty: usize,
@@ -62,6 +73,7 @@ pub struct PoW {
 }
 
 impl PoW {
+    /// Initializes a PoW struct from userdata, difficulty, and PoW algorthm
     pub fn new(userdata: UserData, difficulty: usize, algo: PoWAlgo) -> PoW {
         PoW {
             userdata,
@@ -70,6 +82,9 @@ impl PoW {
         }
     }
 
+    /// Adjusts the difficulty based on the username's length
+    ///
+    /// As the username's length gets shorter the higher the difficulty will get
     pub fn adjust_difficulty(username_length: usize, difficulty: usize) -> usize {
         let half_difficulty = difficulty / 2;
 
@@ -78,6 +93,7 @@ impl PoW {
         difficulty / divisor
     }
 
+    /// Calculates the actual PoW and returns the hash and the nonce as the result
     pub fn calculate_pow(&self) -> (String, usize) {
         let userdata = self.userdata.merge();
         let username_length = self.userdata.username_length();
@@ -98,6 +114,7 @@ impl PoW {
         }
     }
 
+    /// Verify the PoW from userdata, hash, and nonce
     pub fn verify_pow(&self, pow_value: (String, usize)) -> bool {
         let userdata = self.userdata.merge();
         let username_length = self.userdata.username_length();
