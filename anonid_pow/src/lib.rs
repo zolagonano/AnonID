@@ -1,6 +1,7 @@
 use sha2::{Digest, Sha256};
 
 /// Contains username and user's public key
+#[derive(Clone)]
 pub struct UserData {
     username: String,
     auth_address: String,
@@ -43,6 +44,7 @@ impl UserData {
 }
 
 /// Contains the PoW algorithm
+#[derive(Clone)]
 pub enum PoWAlgo {
     Sha256,
 }
@@ -66,6 +68,7 @@ impl PoWAlgo {
 }
 
 /// Contains PoW parameters like difficulty, userdata, and PoW algorithm
+#[derive(Clone)]
 pub struct PoW {
     userdata: UserData,
     difficulty: usize,
