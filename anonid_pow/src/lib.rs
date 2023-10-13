@@ -96,6 +96,10 @@ impl PoW {
         difficulty / divisor
     }
 
+    fn calculate_target(adjusted_difficulty: usize) -> String {
+        format!("{:x}", usize::pow(2, adjusted_difficulty as u32) - 1)
+    }
+
     /// Calculates the actual PoW and returns the hash and the nonce as the result
     pub fn calculate_pow(&self) -> (String, usize) {
         let userdata = self.userdata.merge();
@@ -103,13 +107,13 @@ impl PoW {
 
         let adjusted_difficulty = Self::adjust_difficulty(username_length, self.difficulty);
 
-        let target = "0".repeat(adjusted_difficulty);
+        let target = Self::calculate_target(adjusted_difficulty);
 
         let mut nonce = 0;
         loop {
             let hash = self.algo.calculate(&userdata, nonce);
 
-            if hash[..adjusted_difficulty] == target {
+            if hash[..target.len()] == target {
                 return (hash, nonce);
             } else {
                 nonce += 1;
@@ -124,13 +128,13 @@ impl PoW {
 
         let adjusted_difficulty = Self::adjust_difficulty(username_length, self.difficulty);
 
-        let target = "0".repeat(adjusted_difficulty);
+        let target = Self::calculate_target(adjusted_difficulty);
 
         let (input_hash, nonce) = pow_value;
 
         let computed_hash = self.algo.calculate(&userdata, nonce);
 
-        if computed_hash[..adjusted_difficulty] == target && computed_hash == input_hash {
+        if computed_hash[..target.len()] == target && computed_hash == input_hash {
             true
         } else {
             false
@@ -189,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_pow_calculate() {
-        let difficulty = 10;
+        let difficulty = 24;
 
         let userdata =
             UserData::from_merged("1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user".to_string())
@@ -197,8 +201,8 @@ mod tests {
         let pow = PoW::new(userdata, difficulty, PoWAlgo::Sha256);
 
         let expected_result = (
-            "00000d311bf66540c9a555f704c27df88e0d5172155771e69d3c7849f2eb07f9".to_string(),
-            1276692_usize,
+            "ffffff419e9de8f5a3b958da92eb19ed8b6cc6da591de7fec0a2e7250c804047".to_string(),
+            6589658_usize,
         );
 
         assert_eq!(expected_result, pow.calculate_pow());
@@ -206,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_pow_verify() {
-        let difficulty = 10;
+        let difficulty = 24;
 
         let userdata =
             UserData::from_merged("1FBbx487PoajzgnA4yY6TnoLFhQQteT8UX:zeronet_user".to_string())
@@ -214,8 +218,8 @@ mod tests {
         let pow = PoW::new(userdata, difficulty, PoWAlgo::Sha256);
 
         let computed_pow = (
-            "00000d311bf66540c9a555f704c27df88e0d5172155771e69d3c7849f2eb07f9".to_string(),
-            1276692_usize,
+            "ffffff419e9de8f5a3b958da92eb19ed8b6cc6da591de7fec0a2e7250c804047".to_string(),
+            6589658_usize,
         );
 
         assert!(pow.verify_pow(computed_pow));
